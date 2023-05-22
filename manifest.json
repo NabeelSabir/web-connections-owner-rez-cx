@@ -1,0 +1,68 @@
+{
+  "manifest_version": 3,
+  "name": "OwnerRez",
+  "version": "1.0",
+  "description": "",
+  "icons": {
+    "16": "img/icon16.png",
+    "19": "img/icon19.png",
+    "32": "img/icon32.png",
+    "48": "img/icon48.png",
+    "128": "img/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.airbnb.com/*",
+        "https://*.airbnb.ca/*",
+        "https://*.airbnb.ae/*",
+        "https://*.airbnb.co.uk/*",
+        "https://*.airbnb.co.za/*",
+        "https://*.airbnb.com.au/*",
+        "https://*.airbnb.co.nz/*",
+        "https://*.airbnb.es/*",
+        "https://*.airbnb.fr/*",
+        "https://*.airbnb.mx/*",
+        "https://*.airbnb.nl/*"
+      ],
+      "js": ["lib/jquery-3.2.1.min.js", "./content.js"]
+    }
+  ],
+  "permissions": [
+    "background",
+    "tabs",
+    "activeTab",
+    "cookies",
+    "webNavigation",
+    "webRequest",
+    "pageCapture",
+    "downloads",
+    "offscreen"
+  ],
+  "host_permissions": [
+    "https://secure.dev.ownerreservations.com/",
+    "https://secure.ownerreservations.com/"
+  ],
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "action": {
+    "default_icon": "img/icon19.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "img/icon16.png",
+        "img/icon32.png"
+      ],
+
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>OwnerRez Channel Bridge</title>
+    <link rel="stylesheet" href="lib/bootstrap.min.css"/>
+    <link rel="stylesheet" href="lib/bootstrap-theme.min.css"/>
+    <link rel="stylesheet" href="lib/font-awesome.css"/>
+    <link rel="stylesheet" href="lib/bootstrap-datepicker.min.css"/>
+    <style type="text/css">
+        .radio input[type="radio"], .radio-inline input[type="radio"], .checkbox input[type="checkbox"], .checkbox-inline input[type="checkbox"] {
+            margin-top: 0 !important;
+        }
+
+        select {
+            -webkit-appearance: menulist !important;
+            background-image: none !important;
+            box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075) !important;
+        }
+
+        input.form-control {
+            padding: 6px 12px !important
+        }
+    </style>
+    <script src="lib/console-history.js"></script>
+    <script src="lib/jquery-3.2.1.min.js"></script>
+    <script src="lib/bootstrap.min.js"></script>
+    <script src="lib/bootstrap-datepicker.min.js"></script>
+    <script src="options.js"></script>
+</head>
+<body>
+<div class="container" style="min-width:600px">
+    <div class="row">
+        <div class="col-sm-12">
+            <h1 class="page-header" style="margin-top:10px;margin-bottom:5px">OwnerRez Chrome Extension</h1>
+<!--            <div class="spinner" style="padding:20px;text-align:center">-->
+<!--                <i class="fa fa-spinner fa-spin fa-4x"></i>-->
+<!--            </div>-->
+
+            <div id="export-accounts" >
+                <a class="btn btn-default refresh-status pull-right"><i class="fa fa-refresh"></i> Refresh Status</a>
+                <h3>Export your data from listing sites</h3>
+                <table id="export-accounts-table" class="table" style="margin-bottom:10px">
+                    <thead>
+                    <tr>
+                        <th>Listing Site</th>
+                        <th>Account</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr id="account-{{:type}}"  data-account-type="{{:type}}">
+                        <td>AirBnb</td>
+                        <td><span class="label label-default">test.email@airbnb.com</span></td>
+                        <td><span class="label label-success">Connected</span></td>
+                        <td>
+                            <a id="loginBtn" class="btn btn-default btn-xs channel-bridge-login">Log in</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <a id="version-marker" style="float:right;margin-top:40px;color:#aaa" href="#"></a>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal" id="commModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">
+                    <span class="title-op"></span>
+                    <span class="title-ver small text-muted pull-right"></span>
+                </h4>
+            </div>
+            <div class="modal-body">
+                <div class="export-options">
+                    <p>
+                        <strong>What do you want to export?</strong> Select your preferences and get the export started!
+                        Please be patient as the data is found, analyzed, and prepared.
+                    </p>
+                    <div class="export-options-review" style="margin-bottom:20px">
+                        <div class="btn-group btn-group-export-limit" data-selected-value="10">
+                            <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+                                <span class="dropdown-selected-words">Latest 10</span> <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="btn-group-export-limit-option" data-value="5">Latest 5</a></li>
+                                <li><a class="btn-group-export-limit-option" data-value="10">Latest 10</a></li>
+                                <li><a class="btn-group-export-limit-option" data-value="20">Latest 20</a></li>
+                                <li><a class="btn-group-export-limit-option" data-value="50">Latest 50</a></li>
+                                <li><a class="btn-group-export-limit-option" data-value="100">Latest 100</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a class="btn-group-export-limit-option" data-value="-1">All</a></li>
+                            </ul>
+                        </div>
+                        reviews in
+                        <div class="btn-group btn-group-export-format" data-selected-value="Excel">
+                            <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+                                <span class="dropdown-selected-words">Excel</span> <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="btn-group-export-format-option" data-value="Excel">Excel</a></li>
+                            </ul>
+                        </div>
+                        format
+                    </div>
+                    <div class="export-options-booking form-horizontal">
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <p>
+                                    <label class="control-label">Property</label>
+                                </p>
+                                <select id="bookingProperty" class="form-control">
+                                    <option value="">All Properties</option>
+                                </select>
+                                <p style="margin-top:10px">
+                                    <label class="control-label">Export Criteria</label>
+                                </p>
+                                <p class="form-inline">
+                                    <label class="radio-inline">
+                                        <input type="radio" name="booking-criteria" value="since"/>
+                                        Modified since &nbsp;
+                                    </label>
+                                    <span class="input-group date">
+                                                <span class="input-group-btn">
+                                                    <a class="btn btn-default datepicker-open-button"><i
+                                                            class="fa fa-calendar"></i></a>
+                                                </span>
+                                                <input id="bookingModified" type="text" class="form-control"
+                                                       data-provide="datepicker" style="width:150px"/>
+                                            </span>
+                                </p>
+                                <p class="form-inline">
+                                    <label class="radio-inline">
+                                        <input type="radio" name="booking-criteria" value="stay"/>
+                                        Staying between
+                                    </label>
+                                    <span class="input-group date">
+                                                <span class="input-group-btn">
+                                                    <a class="btn btn-default datepicker-open-button"><i
+                                                            class="fa fa-calendar"></i></a>
+                                                </span>
+                                                <input id="bookingStayStart" type="text" class="form-control"
+                                                       data-provide="datepicker" style="width:150px"/>
+                                            </span>
+                                    <label for="bookingStayEnd" style="font-weight:normal">
+                                        &nbsp;and&nbsp;
+                                    </label>
+                                    <span class="input-group date">
+                                                <span class="input-group-btn">
+                                                    <a class="btn btn-default datepicker-open-button"><i
+                                                            class="fa fa-calendar"></i></a>
+                                                </span>
+                                                <input id="bookingStayEnd" type="text" class="form-control"
+                                                       data-provide="datepicker" style="width:150px"/>
+                                            </span>
+                                </p>
+                                <p class="form-inline rez-id">
+                                    <label class="radio-inline">
+                                        <input type="radio" name="booking-criteria" value="search"/>
+                                        Reservation ID &nbsp;
+                                    </label>
+                                    <input id="bookingSearch" type="text" class="form-control"/>
+                                    <span class="help-block rez-error" style="display:none">Must be the channel's reservation number (not the OwnerRez ORB number).</span>
+                                </p>
+                                <div id="bookingAdvanced" style="display:none">
+                                    <a id="bookingAdvancedShow" href="javascript:void(0)">Advanced Options &gt;&gt;</a>
+                                    <div id="bookingAdvancedDisplay">
+                                        <div style="margin-top:10px">
+                                            <label class="control-label">Advanced Options</label>
+                                        </div>
+                                        <div class="checkbox" style="padding-top:0">
+                                            <label>
+                                                <input type="checkbox" id="bookingIgnorePayoutErrors"/>
+                                                Ignore and skip errors while downloading payouts
+                                            </label>
+                                        </div>
+                                        <span class="help-block">
+                                                    Airbnb can have errors in their transaction history based on permissions or other reasons.
+                                                    You can enable this option to skip errors, but make sure to review the file and ensure the payouts are correct for the bookings.
+                                                </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-messages" style="overflow:auto;height:250px"></div>
+                <div class="modal-footer">
+                    <a class="btn btn-default export-more" style="display:none">Export More</a>
+                    <a class="btn btn-default export-cancel">Cancel</a>
+                    <a class="btn btn-success export-execute">Start Download</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal" id="versionModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a class="close" data-dismiss="modal">&times;</a>
+                <h4 class="modal-title">Channel Bridge Debug Info</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    <a id="download-log" class="btn btn-default"><i class="fa fa-cloud-download"></i> Download Log</a>
+                </p>
+                <div id="op-log" style="overflow:scroll;height:500px;border:1px solid #888"></div>
+                <div class="modal-footer">
+                    <a class="btn btn-default" data-dismiss="modal">Close</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
